@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -69,6 +70,30 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
 });
 
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'loginView'])
+        ->name('login');
+
+    Route::post('/login', [AuthController::class, 'login'])->name('h.login');
+
+    Route::get('/register', [AuthController::class, 'registerView'])
+        ->name('register');
+
+    Route::post('/register', [AuthController::class, 'register']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/complete-profile', [AuthController::class, 'completeProfileView'])
+        ->name('profile.complete')
+        ->middleware('incomplete.profile');
+
+    Route::post('/complete-profile', [AuthController::class, 'completeProfile'])
+        ->middleware('incomplete.profile');
+
+    Route::post('/logout', [AuthController::class, 'logout'])
+        ->name('logout');
+});
+
 
 // In web.php
 Route::get('/', [BookController::class, 'index'])->name('home');
@@ -79,4 +104,4 @@ Route::get('/contact', [BookController::class, 'contact'])->name('contact');
 Route::get('/privacy', [BookController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [BookController::class, 'terms'])->name('terms');
 
-require __DIR__.'/auth.php';
+// require __DIR__.'/auth.php';

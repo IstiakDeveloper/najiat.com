@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -18,7 +19,16 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name', 'email', 'password', 'phone', 'address', 'role'
+        'login_identifier',
+        'password',
+        'name',
+        'email',
+        'phone',
+        'address',
+        'birth_date',
+        'gender',
+        'role',
+        'profile_completed'
     ];
 
     /**
@@ -29,6 +39,11 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    protected $casts = [
+        'birth_date' => 'date',
+        'profile_completed' => 'boolean'
     ];
 
     /**
@@ -44,9 +59,18 @@ class User extends Authenticatable
         ];
     }
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+
+    // Relationships
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
+
+    // Check if login identifier is email
+    public function isEmail()
+    {
+        return filter_var($this->login_identifier, FILTER_VALIDATE_EMAIL);
+    }
 
     // Relationships
     public function orders()
